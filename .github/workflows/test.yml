@@ -29,3 +29,7 @@ jobs:
       - name: Run pytest
         run: |
           pytest
+      - name : coverage testing
+        run: |
+          coverage json -q -o /dev/stdout | python -c 'import sys, json; perc_cov = json.load(sys.stdin)["totals"]["percent_covered"]; is_covered = perc_cov >=  0; print("Coverage is: ", perc_cov); sys.exit(not is_covered)'
+
