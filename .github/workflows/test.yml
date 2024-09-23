@@ -25,11 +25,10 @@ jobs:
         run: |
           pip install -e .
           pip install pytest
+          pip install coverage
 
-      - name: Run pytest
+      - name: Run pytest and check coverage
         run: |
-          pytest
-      - name : coverage testing
-        run: |
-          coverage json -q -o /dev/stdout | python -c 'import sys, json; perc_cov = json.load(sys.stdin)["totals"]["percent_covered"]; is_covered = perc_cov >=  0; print("Coverage is: ", perc_cov); sys.exit(not is_covered)'
-
+          coverage run -m pytest
+          $coverage_percentage = (coverage report | Select-String "TOTAL" | ForEach-Object { $_.ToString().Split()[-1].Trim('%') }); if ([int]$coverage_percentage -le 0) { echo "Coverage is below acceptable levels!"; exit 1 }
+      
