@@ -1,9 +1,8 @@
+from src.customexception import RandomException
+
+
 def division(a, b):
     if b != 0:
         return a // b
     else:
-        raise exception("")
-
-
-def exception(message):
-    raise ZeroDivisionError(message)
+        raise RandomException(f"{__name__}","b should not be zero")
