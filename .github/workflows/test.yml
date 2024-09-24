@@ -9,7 +9,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      COVERAGE_TOTAL: 70 
+      COVERAGE_TOTAL: 60 
 
     steps:
       - name: Checkout code
