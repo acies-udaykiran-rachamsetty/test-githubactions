@@ -25,7 +25,14 @@ jobs:
           pip install -e .
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       
-      - name: Run pytest and code coverage
+      - name: Run pytest and generate coverage report
+        id: coverage
         run: |
           coverage run --omit='test/*' -m pytest
-          coverage report --fail-under=${{ env.COVERAGE_TOTAL }}
+          coverage report --fail-under=${{ env.COVERAGE_TOTAL }} > coverage_report.txt
+          echo "::set-output name=output-table::$(cat coverage_report.txt)"
+      
+      - name: Commit pytest coverage table
+        uses: peter-evans/commit-comment@main
+        with:
+          body: ${{ steps.coverage.outputs.output-table }}
