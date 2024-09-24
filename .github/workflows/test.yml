@@ -1,9 +1,6 @@
 name: Testing
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
@@ -11,6 +8,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      COVERAGE_TOTAL: 70 
 
     steps:
       - name: Checkout code
@@ -24,12 +23,9 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -e .
-          pip install pytest
-          pip install coverage
-
-      - name: Run pytest and check coverage
-        run: |
-          coverage_percentage=$(coverage report | grep "TOTAL" | awk '{print $4}' | tr -d '%')
-          if [ "$coverage_percentage" -le 0 ]; then echo "Coverage is below acceptable levels!"; exit 1; fi
-        shell: bash
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       
+      - name: Run pytest and code coverage
+        run: |
+          coverage run --omit='tests/*' -m pytest
+          coverage report --fail-under=${{ env.COVERAGE_TOTAL }}
