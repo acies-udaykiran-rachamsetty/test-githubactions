@@ -32,10 +32,12 @@ jobs:
 
       - name: Load environment variables from LOCAL_ENVIRONMENT
         run: |
-          export $(grep -v '^#' local_env.txt | xargs -d '\n') && \
+          # Trim spaces around the '=' and export each key-value pair
           while IFS='=' read -r key value; do
+            key=$(echo "$key" | xargs)    # Remove leading/trailing spaces from key
+            value=$(echo "$value" | xargs) # Remove leading/trailing spaces from value
             echo "$key=$value" >> $GITHUB_ENV
-          done < local_env.txt
+          done < <(grep -v '^#' local_env.txt)
 
       - name: Access environment variables
         run: |
@@ -48,4 +50,7 @@ jobs:
         run: |
           coverage run --omit='test/*' -m pytest
           coverage report --fail-under=${{ env.COVERAGE_TOTAL }} > coverage_report.txt
-          echo "::set-output name=output-table::$(cat coverage_report.txt)"
+          
+      - name: Set output coverage table
+        run: |
+          echo "output-table=$(cat coverage_report.txt)" >> $GITHUB_OUTPUT
