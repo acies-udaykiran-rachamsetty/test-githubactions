@@ -32,7 +32,6 @@ jobs:
 
       - name: Load environment variables from LOCAL_ENVIRONMENT
         run: |
-          # Trim spaces around the '=' and export each key-value pair
           while IFS='=' read -r key value; do
             key=$(echo "$key" | xargs)    # Remove leading/trailing spaces from key
             value=$(echo "$value" | xargs) # Remove leading/trailing spaces from value
@@ -43,7 +42,15 @@ jobs:
         run: |
           echo "Value of a is: $a"
           echo "Value of b is: $b"
-          echo "Value of u is: $u"
+          echo "Value of u is: $c"
+
+      - name: Write environment variables to .env file
+        run: |
+          echo "Writing to .env file..."
+          echo "a=$a" >> .env
+          echo "b=$b" >> .env
+          echo "u=$u" >> .env
+          cat .env  # Print the contents of .env file to verify
 
       - name: Run pytest and generate coverage report
         id: coverage
@@ -51,6 +58,3 @@ jobs:
           coverage run --omit='test/*' -m pytest
           coverage report --fail-under=${{ env.COVERAGE_TOTAL }} > coverage_report.txt
           
-      - name: Set output coverage table
-        run: |
-          echo "output-table=$(cat coverage_report.txt)" >> $GITHUB_OUTPUT
