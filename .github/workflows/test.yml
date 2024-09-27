@@ -9,7 +9,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      COVERAGE_TOTAL: 60 
+      COVERAGE_TOTAL: 60
 
     steps:
       - name: Checkout code
@@ -24,7 +24,25 @@ jobs:
         run: |
           pip install -e .
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      
+
+      # Load secrets from LOCAL_ENVIRONMENT into environment variables
+      - name: Write LOCAL_ENVIRONMENT to a text file
+        run: |
+          echo "${{secrets.SECRET_NAME}}" > local_env.txt
+
+      - name: Load environment variables from LOCAL_ENVIRONMENT
+        run: |
+          export $(grep -v '^#' local_env.txt | xargs -d '\n') && \
+          echo "a=$a" >> $GITHUB_ENV && \
+          echo "b=$b" >> $GITHUB_ENV && \
+          echo "u=$u" >> $GITHUB_ENV
+
+      - name: Access environment variables
+        run: |
+          echo "Value of a is: $a"
+          echo "Value of b is: $b"
+          echo "Value of u is: $u"
+
       - name: Run pytest and generate coverage report
         id: coverage
         run: |
