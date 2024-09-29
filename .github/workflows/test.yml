@@ -25,7 +25,6 @@ jobs:
           pip install -e .
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      # Load secrets from LOCAL_ENVIRONMENT into environment variables
       - name: Write LOCAL_ENVIRONMENT to a text file
         run: |
           echo "${{ secrets.SECRET_NAME }}" > local_env.txt
@@ -33,8 +32,8 @@ jobs:
       - name: Load environment variables from LOCAL_ENVIRONMENT
         run: |
           while IFS='=' read -r key value; do
-            key=$(echo "$key" | xargs)    # Remove leading/trailing spaces from key
-            value=$(echo "$value" | xargs) # Remove leading/trailing spaces from value
+            key=$(echo "$key" | xargs)
+            value=$(echo "$value" | xargs)
             echo "$key=$value" >> $GITHUB_ENV
           done < <(grep -v '^#' local_env.txt)
 
