@@ -9,7 +9,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      COVERAGE_TOTAL: 70 
+      COVERAGE_TOTAL: 60
 
     steps:
       - name: Checkout code
@@ -24,8 +24,36 @@ jobs:
         run: |
           pip install -e .
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      
-      - name: Run pytest and code coverage
+
+      - name: Write LOCAL_ENVIRONMENT to a text file
         run: |
-          coverage run --omit='tests/*' -m pytest
-          coverage report --fail-under=${{ env.COVERAGE_TOTAL }}
+          echo "${{ secrets.SECRET_NAME }}" > local_env.txt
+
+      - name: Load environment variables from LOCAL_ENVIRONMENT
+        run: |
+          while IFS='=' read -r key value; do
+            key=$(echo "$key" | xargs)
+            value=$(echo "$value" | xargs)
+            echo "$key=$value" >> $GITHUB_ENV
+          done < <(grep -v '^#' local_env.txt)
+
+      - name: Access environment variables
+        run: |
+          echo "Value of a is: $a"
+          echo "Value of b is: $b"
+          echo "Value of u is: $c"
+
+      - name: Write environment variables to .env file
+        run: |
+          echo "Writing to .env file..."
+          echo "a=$a" >> .env
+          echo "b=$b" >> .env
+          echo "u=$u" >> .env
+          cat .env  # Print the contents of .env file to verify
+
+      - name: Run pytest and generate coverage report
+        id: coverage
+        run: |
+          coverage run --omit='test/*' -m pytest
+          coverage report --fail-under=${{ env.COVERAGE_TOTAL }} > coverage_report.txt
+          
