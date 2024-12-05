@@ -27,5 +27,5 @@ jobs:
       
       - name: Run pytest and code coverage
         run: |
-          coverage run --omit='tests/*' -m pytest
+          coverage run --omit='test/*' -m pytest
           coverage report --fail-under=${{ env.COVERAGE_TOTAL }}
